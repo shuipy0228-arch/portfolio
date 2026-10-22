@@ -89,6 +89,23 @@ h1 .thin{color:var(--fg-dim);font-weight:400}
 }
 .chip.hi{border-color:rgba(232,184,109,.4);color:var(--warn);background:rgba(232,184,109,.06)}
 
+
+/* ---------- hero two-column ---------- */
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:56px;align-items:start}
+.hero-sub-2{font-size:15.5px;color:var(--fg-faint);margin-top:14px}
+.facts{display:flex;flex-direction:column;gap:0}
+.fact{
+  display:flex;justify-content:space-between;gap:20px;align-items:baseline;
+  padding:14px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+}
+.fact:first-child{border-top:1px solid var(--line)}
+.fact dt{color:var(--fg-faint);font-size:12.5px;white-space:nowrap}
+.fact dd{color:var(--fg);font-family:var(--mono);font-size:12.5px;text-align:right}
+.hero-facts{padding-top:14px;border-left:1px solid var(--line);padding-left:34px}
+.hero-facts .fact{padding:11px 0}
+.hero-facts .fact:first-child{border-top:none}
+.hero-facts dd{font-size:12px}
+
 /* ---------- section head ---------- */
 .sec{padding:78px 0;border-top:1px solid var(--line)}
 .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:46px;flex-wrap:wrap}
@@ -247,23 +264,6 @@ h3.p-title{
   padding:3px 9px;background:rgba(255,255,255,.03);border-radius:4px;
 }
 
-/* ---------- about / contact ---------- */
-.about-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:52px}
-.about-grid-single{grid-template-columns:minmax(0,1fr);gap:34px;max-width:720px}
-.about-grid-single .about-text{font-size:16px}
-.about-grid-single .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}
-.about-grid-single .fact:nth-child(2){border-top:1px solid var(--line)}
-.about-text p{color:var(--fg-dim);font-size:15px;line-height:1.95;margin-bottom:18px}
-.about-text p strong{color:var(--fg);font-weight:500}
-.facts{display:flex;flex-direction:column;gap:0}
-.fact{
-  display:flex;justify-content:space-between;gap:20px;
-  padding:14px 0;border-bottom:1px solid var(--line);font-size:13.5px;
-}
-.fact:first-child{border-top:1px solid var(--line)}
-.fact dt{color:var(--fg-faint);font-size:12.5px}
-.fact dd{color:var(--fg);font-family:var(--mono);font-size:12.5px;text-align:right}
-
 footer{
   border-top:1px solid var(--line);padding:38px 0 46px;
   display:flex;justify-content:space-between;align-items:center;gap:20px;
@@ -283,10 +283,9 @@ footer a:hover{color:var(--accent)}
   .p-main{padding:28px 24px 24px}
   .p-foot{padding:14px 24px}
   .p-side{padding:26px 24px}
-  .about-grid{grid-template-columns:minmax(0,1fr);gap:36px}
-  .about-grid-single{max-width:none}
-  .about-grid-single .facts{grid-template-columns:minmax(0,1fr);gap:0}
-  .about-grid-single .fact:nth-child(2){border-top:none}
+  .hero-grid{grid-template-columns:minmax(0,1fr);gap:34px}
+  .hero-facts{border-left:none;padding-left:0;padding-top:0;border-top:1px solid var(--line)}
+  .hero-facts .fact:first-child{border-top:none}
   .fact dd{word-break:break-all}
   .shots{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pmedia{padding:20px 24px 22px}
@@ -319,25 +318,42 @@ footer a:hover{color:var(--accent)}
     <div class="nav-links">
       <a href="#work">作品</a>
       <a href="#skills">技术栈</a>
-      <a href="#about">关于</a>
+      <a href="#about">简介</a>
       <a href="mailto:shuipy_uestc@163.com" class="mono hide-sm">邮件</a>
     </div>
   </div>
 </nav>
 
-<header>
+<header id="about">
   <div class="wrap">
-    <div class="kicker">Agent 开发 / LLM 应用实习 · RAG · 具身智能</div>
-    <h1>水鹏云<br><span class="thin">作品集</span></h1>
-    <p class="hero-sub">
-      本科就读于电子科技大学信息工程专业。作品集主要涉及 AI、具身智能、RAG 与嵌入式方向，
-      关注项目完整性：从数据与算法到评测、真机部署，能否打通全流程闭环，并以实测结果验证。
-    </p>
-    <div class="hero-meta">
-      <span class="chip hi">中国高校智能机器人创意大赛 · 全国一等奖</span>
-      <span class="chip">CET-6</span>
-      <span class="chip">成都</span>
-      <span class="chip">shuipy_uestc@163.com</span>
+    <div class="hero-grid">
+      <div class="hero-main">
+        <div class="kicker">Agent 开发 / LLM 应用实习 · RAG · 具身智能</div>
+        <h1>水鹏云<br><span class="thin">作品集</span></h1>
+        <p class="hero-sub">
+          我叫水鹏云，本科就读于电子科技大学信息工程专业，GPA 排名前 4%。
+          研究方向为具身智能与计算机视觉，目前在找 Agent / LLM 应用方向的实习——欢迎交流。
+        </p>
+        <p class="hero-sub hero-sub-2">
+          作品集主要涉及 AI、具身智能、RAG 与嵌入式方向，关注项目完整性：
+          从数据与算法到评测、真机部署，能否打通全流程闭环，并以实测结果验证。
+        </p>
+        <div class="hero-meta">
+          <span class="chip hi">中国高校智能机器人创意大赛 · 全国一等奖</span>
+          <span class="chip">CET-6</span>
+          <span class="chip">成都</span>
+          <span class="chip">shuipy_uestc@163.com</span>
+        </div>
+      </div>
+      <aside class="hero-facts">
+        <div class="fact"><dt>学校</dt><dd>电子科技大学</dd></div>
+        <div class="fact"><dt>专业</dt><dd>信息工程 · 2027 届</dd></div>
+        <div class="fact"><dt>GPA</dt><dd>3.94 / 4.0</dd></div>
+        <div class="fact"><dt>专业排名</dt><dd>4 / 109</dd></div>
+        <div class="fact"><dt>去向</dt><dd>已保研本校</dd></div>
+        <div class="fact"><dt>研究方向</dt><dd>具身智能 · 计算机视觉</dd></div>
+        <div class="fact"><dt>邮箱</dt><dd>shuipy_uestc@163.com</dd></div>
+      </aside>
     </div>
   </div>
 </header>
@@ -626,31 +642,7 @@ footer a:hover{color:var(--accent)}
   </div>
 </section>
 
-<section class="sec" id="about">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-num">03 / ABOUT</span>
-      <h2 class="sec-title">关于</h2>
-    </div>
-    <div class="about-grid about-grid-single">
-      <div class="about-text reveal">
-        <p>
-          我叫水鹏云，本科就读于电子科技大学信息工程专业，GPA 排名前 4%。
-          研究方向为具身智能与计算机视觉，目前在找 Agent / LLM 应用方向的实习——欢迎交流。
-        </p>
-      </div>
-      <div class="facts reveal">
-        <div class="fact"><dt>学校</dt><dd>电子科技大学</dd></div>
-        <div class="fact"><dt>专业</dt><dd>信息工程 · 2027 届</dd></div>
-        <div class="fact"><dt>GPA</dt><dd>3.94 / 4.0</dd></div>
-        <div class="fact"><dt>专业排名</dt><dd>4 / 109</dd></div>
-        <div class="fact"><dt>去向</dt><dd>已保研本校</dd></div>
-        <div class="fact"><dt>邮箱</dt><dd>shuipy_uestc@163.com</dd></div>
-        <div class="fact"><dt>地点</dt><dd>成都</dd></div>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <div class="wrap">
   <footer>
