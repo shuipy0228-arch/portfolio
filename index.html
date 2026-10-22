@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水鹏云 · Agent / 具身智能</title>
+<meta name="description" content="水鹏云的作品集：RAG 检索、具身智能数据、机器人视觉与边缘部署。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%237dd3c0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0b0d;
+  --bg-elev:#12141a;
+  --bg-card:#15181f;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.16);
+  --fg:#e8eaed;
+  --fg-dim:#9aa0a8;
+  --fg-faint:#6b7280;
+  --accent:#7dd3c0;
+  --accent-2:#8b9dff;
+  --warn:#e8b86d;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',SimSun,Georgia,serif;
+  --sans:'Inter',-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;
+  --max:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--sans);
+  font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 500px at 12% -8%,rgba(125,211,192,.09),transparent 60%),
+    radial-gradient(760px 460px at 92% 8%,rgba(139,157,255,.08),transparent 62%);
+}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 32px;position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+
+/* ---------- nav ---------- */
+nav{
+  position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+  background:rgba(10,11,13,.78);border-bottom:1px solid var(--line);
+}
+.nav-in{
+  max-width:var(--max);margin:0 auto;padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-brand{display:flex;align-items:center;gap:11px;font-weight:600;letter-spacing:.01em}
+.nav-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 14px rgba(125,211,192,.75);
+}
+.nav-links{display:flex;gap:28px;font-size:13.5px;color:var(--fg-dim)}
+.nav-links a{transition:color .18s}
+.nav-links a:hover{color:var(--fg)}
+.nav-links .mono{font-family:var(--mono);font-size:12px;color:var(--fg-faint)}
+
+/* ---------- hero ---------- */
+header{padding:104px 0 84px;position:relative}
+.kicker{
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:26px;
+  display:flex;align-items:center;gap:12px;
+}
+.kicker::after{content:'';height:1px;flex:0 0 62px;background:linear-gradient(90deg,var(--accent),transparent)}
+h1{
+  font-family:var(--serif);font-size:clamp(42px,6.4vw,76px);
+  font-weight:700;line-height:1.1;letter-spacing:-.02em;margin-bottom:26px;
+}
+h1 .thin{color:var(--fg-dim);font-weight:400}
+.hero-sub{
+  font-size:clamp(16px,1.9vw,19px);color:var(--fg-dim);
+  max-width:660px;line-height:1.85;
+}
+.hero-sub strong{color:var(--fg);font-weight:500}
+.hero-meta{
+  margin-top:44px;display:flex;flex-wrap:wrap;gap:10px;
+}
+.chip{
+  font-size:12.5px;padding:6px 14px;border:1px solid var(--line-strong);
+  border-radius:100px;color:var(--fg-dim);background:rgba(255,255,255,.02);
+}
+.chip.hi{border-color:rgba(232,184,109,.4);color:var(--warn);background:rgba(232,184,109,.06)}
+
+/* ---------- section head ---------- */
+.sec{padding:78px 0;border-top:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:46px;flex-wrap:wrap}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.1em}
+.sec-title{font-family:var(--serif);font-size:clamp(25px,3.1vw,33px);font-weight:600;letter-spacing:-.01em}
+.sec-note{margin-left:auto;font-size:13px;color:var(--fg-faint);font-family:var(--mono)}
+
+/* ---------- project card ---------- */
+.project{
+  background:linear-gradient(180deg,var(--bg-card),rgba(21,24,31,.55));
+  border:1px solid var(--line);border-radius:18px;
+  margin-bottom:26px;overflow:hidden;
+  transition:border-color .28s,transform .28s;
+}
+.project:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.p-top{
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;
+}
+.p-main{padding:34px 36px 30px;min-width:0}
+.p-side{
+  border-left:1px solid var(--line);padding:34px 30px;min-width:0;
+  background:rgba(0,0,0,.16);display:flex;flex-direction:column;gap:20px;
+}
+.p-index{
+  font-family:var(--mono);font-size:11.5px;color:var(--fg-faint);
+  letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.p-index .badge{
+  font-size:10px;padding:2px 8px;border-radius:4px;letter-spacing:.04em;
+  background:rgba(125,211,192,.1);color:var(--accent);border:1px solid rgba(125,211,192,.22);
+}
+.p-index .badge.gold{background:rgba(232,184,109,.1);color:var(--warn);border-color:rgba(232,184,109,.26)}
+.p-index .badge.mute{background:rgba(255,255,255,.04);color:var(--fg-faint);border-color:var(--line)}
+h3.p-title{
+  font-family:var(--serif);font-size:clamp(21px,2.6vw,26px);
+  font-weight:600;line-height:1.35;margin-bottom:10px;letter-spacing:-.01em;
+}
+.p-sub{color:var(--fg-dim);font-size:14px;margin-bottom:20px;line-height:1.65}
+.p-desc{font-size:14.5px;color:var(--fg-dim);line-height:1.85;margin-bottom:22px;max-width:660px}
+.p-hl{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:4px}
+.p-hl li{
+  font-size:13.5px;color:var(--fg-dim);padding-left:18px;position:relative;line-height:1.7;
+}
+.p-hl li::before{
+  content:'';position:absolute;left:0;top:9px;width:6px;height:1px;
+  background:var(--accent);opacity:.8;
+}
+.p-hl li b{color:var(--fg);font-weight:500}
+
+.metric{border-bottom:1px solid var(--line);padding-bottom:14px}
+.metric:last-child{border-bottom:none;padding-bottom:0}
+.m-label{font-size:11.5px;color:var(--fg-faint);margin-bottom:3px;letter-spacing:.02em}
+.m-value{font-family:var(--mono);font-size:19px;font-weight:500;color:var(--accent);letter-spacing:-.02em}
+.m-note{font-size:11px;color:var(--fg-faint);margin-top:2px}
+
+.p-foot{
+  border-top:1px solid var(--line);padding:16px 36px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:rgba(0,0,0,.12);
+}
+.tag{
+  font-family:var(--mono);font-size:11px;color:var(--fg-faint);
+  padding:3px 9px;border:1px solid var(--line);border-radius:5px;
+}
+.p-link{
+  margin-left:auto;font-size:12.5px;color:var(--accent);
+  display:flex;align-items:center;gap:6px;font-family:var(--mono);
+  opacity:.85;transition:opacity .2s,gap .2s;
+}
+.p-link:hover{opacity:1;gap:10px}
+
+/* ---------- media strip ---------- */
+.shots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:26px}
+.shot{
+  border-radius:12px;overflow:hidden;border:1px solid var(--line);
+  background:#000;position:relative;aspect-ratio:16/9;min-width:0;
+}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:center 42%;display:block;opacity:.94;transition:opacity .3s,transform .5s}
+.shot:hover img{opacity:1;transform:scale(1.03)}
+.shot-cap{
+  position:absolute;left:0;right:0;bottom:0;padding:22px 12px 9px;
+  font-size:11px;color:#dfe3e8;
+  background:linear-gradient(transparent,rgba(0,0,0,.78));
+  font-family:var(--mono);
+}
+
+
+/* ---------- per-project media ---------- */
+.pmedia{
+  border-top:1px solid var(--line);padding:22px 36px 26px;
+  background:rgba(0,0,0,.09);
+}
+.pmedia-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  color:var(--fg-faint);text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.pmedia-label::after{content:'';flex:1;height:1px;background:var(--line)}
+.pmedia-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.pmedia-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pmedia-grid.one{grid-template-columns:minmax(0,1fr);max-width:640px}
+.clip{
+  border-radius:11px;overflow:hidden;border:1px solid var(--line);
+  background:#000;position:relative;aspect-ratio:16/9;min-width:0;
+}
+.clip.vertical{aspect-ratio:9/16;max-height:460px;justify-self:center;width:100%}
+.clip.vertical video,.clip.vertical img{object-fit:contain;background:#0a0b0d}
+.clip img{width:100%;height:100%;object-fit:cover;display:block}
+.clip video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.clip-cap{
+  position:absolute;left:0;right:0;bottom:0;padding:26px 12px 9px;
+  font-size:11px;color:#e3e7ec;font-family:var(--mono);
+  background:linear-gradient(transparent,rgba(0,0,0,.86));
+  pointer-events:none;
+  opacity:1;transition:opacity .3s;
+}
+.clip.playing .clip-cap{opacity:0}
+.clip .play{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;transition:opacity .25s;
+}
+.clip .play i{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(10,11,13,.62);border:1px solid rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.clip .play i::after{
+  content:'';margin-left:3px;
+  border-left:11px solid #fff;border-top:7px solid transparent;border-bottom:7px solid transparent;
+}
+.clip.playing .play{opacity:0}
+.clip.playing .clip-cap{opacity:0;transition:opacity .3s}
+
+.pmedia-wide{margin-top:14px;border-radius:11px;overflow:hidden;border:1px solid var(--line);background:#000}
+.pmedia-wide img{width:100%;display:block}
+.pmedia-wide-cap{
+  padding:9px 14px;font-size:11px;color:var(--fg-faint);font-family:var(--mono);
+  background:rgba(255,255,255,.02);border-top:1px solid var(--line);
+}
+
+/* ---------- skills ---------- */
+.skill-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.skill-card{
+  border:1px solid var(--line);border-radius:14px;padding:24px;
+  background:rgba(255,255,255,.014);
+}
+.skill-card h4{
+  font-size:13px;font-weight:600;margin-bottom:14px;color:var(--fg);
+  letter-spacing:.01em;display:flex;align-items:center;gap:8px;
+}
+.skill-card h4::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent-2)}
+.skill-list{display:flex;flex-wrap:wrap;gap:7px}
+.skill-list span{
+  font-size:11.5px;color:var(--fg-dim);font-family:var(--mono);
+  padding:3px 9px;background:rgba(255,255,255,.03);border-radius:4px;
+}
+
+/* ---------- about / contact ---------- */
+.about-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:52px}
+.about-text p{color:var(--fg-dim);font-size:15px;line-height:1.95;margin-bottom:18px}
+.about-text p strong{color:var(--fg);font-weight:500}
+.facts{display:flex;flex-direction:column;gap:0}
+.fact{
+  display:flex;justify-content:space-between;gap:20px;
+  padding:14px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+}
+.fact:first-child{border-top:1px solid var(--line)}
+.fact dt{color:var(--fg-faint);font-size:12.5px}
+.fact dd{color:var(--fg);font-family:var(--mono);font-size:12.5px;text-align:right}
+
+footer{
+  border-top:1px solid var(--line);padding:38px 0 46px;
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  flex-wrap:wrap;font-size:12.5px;color:var(--fg-faint);font-family:var(--mono);
+}
+footer a{color:var(--fg-dim);transition:color .2s}
+footer a:hover{color:var(--accent)}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  .wrap,.nav-in{padding-left:22px;padding-right:22px}
+  header{padding:72px 0 58px}
+  .sec{padding:58px 0}
+  .p-top{grid-template-columns:minmax(0,1fr)}
+  .p-side{border-left:none;border-top:1px solid var(--line);flex-direction:row;flex-wrap:wrap;gap:28px}
+  .p-side .metric{flex:1 1 40%;border-bottom:none}
+  .p-main{padding:28px 24px 24px}
+  .p-foot{padding:14px 24px}
+  .p-side{padding:26px 24px}
+  .about-grid{grid-template-columns:minmax(0,1fr);gap:36px}
+  .shots{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pmedia{padding:20px 24px 22px}
+  .pmedia-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pmedia-grid.one{grid-template-columns:minmax(0,1fr)}
+  .clip.vertical{max-height:340px}
+  .nav-links{gap:16px;font-size:12.5px}
+  .nav-links .hide-sm{display:none}
+}
+@media(max-width:560px){
+  .shots{grid-template-columns:minmax(0,1fr)}
+  .pmedia-grid,.pmedia-grid.two{grid-template-columns:minmax(0,1fr)}
+  .clip.vertical{max-height:none}
+  .p-side .metric{flex:1 1 100%}
+  h1{font-size:38px}
+}
+.js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+.js .reveal.on{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .js .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <div class="nav-brand"><span class="nav-dot"></span>水鹏云</div>
+    <div class="nav-links">
+      <a href="#work">作品</a>
+      <a href="#skills">技术栈</a>
+      <a href="#about">关于</a>
+      <a href="mailto:shuipy_uestc@163.com" class="mono hide-sm">邮件</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">Agent 开发 / LLM 应用实习 · RAG · 具身智能</div>
+    <h1>把模型能力<br><span class="thin">落到能跑的系统里</span></h1>
+    <p class="hero-sub">
+      电子科技大学信息工程本科，2027 届，GPA 3.94/4.0，专业排名 4/109，已保研本校。
+      做过 <strong>离线证据检索</strong>、<strong>长程数据拼接</strong>、<strong>解魔方机器人</strong>、
+      <strong>端侧跌倒预警</strong> 与 <strong>LeRobot 模仿学习策略</strong>——
+      共同点是：从数据到部署，整条链路自己走通，并把结果量出来。
+    </p>
+    <div class="hero-meta">
+      <span class="chip hi">中国高校智能机器人创意大赛 · 全国一等奖</span>
+      <span class="chip">CET-6</span>
+      <span class="chip">成都</span>
+      <span class="chip">shuipy_uestc@163.com</span>
+    </div>
+  </div>
+</header>
+
+<section class="sec" id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01 / WORK</span>
+      <h2 class="sec-title">五个项目</h2>
+      <span class="sec-note">2025.06 — 2026.10</span>
+    </div>
+
+    <!-- 01 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 01</span><span class="badge">RAG</span><span class="badge mute">个人项目</span></div>
+          <h3 class="p-title">具身智能领域离线证据检索系统</h3>
+          <p class="p-sub">BM25 + 稠密向量 + 知识图谱三路召回，RRF 融合与证据充分性门控</p>
+          <p class="p-desc">
+            面向具身智能领域的证据检索：在完全离线、不依赖真机与外部 API 的条件下，
+            对论文、机器人手册、实验记录做可溯源检索作答。核心是让「召回」和「不编造」两件事同时可测量。
+          </p>
+          <ul class="p-hl">
+            <li><b>三路召回</b>：jieba + 标准 BM25、bge-m3 稠密向量（FAISS）、LLM 抽取三元组构建的知识图谱</li>
+            <li><b>加法式路由</b>：基础两路常开，命中英文大写词或重复中文专名时再叠加图谱路，规则可单测</li>
+            <li><b>门控拒答</b>：LLM 判证据是否充分，不足直接拒答，无答案题正确拒答率 87.5%</li>
+            <li><b>评测流水线</b>：QA 合成 → LLM-judge 核验 → 分层划分，Recall / nDCG / MRR 全量可复算</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">Recall@5（微调后）</div><div class="m-value">0.668</div><div class="m-note">基线 0.206</div></div>
+          <div class="metric"><div class="m-label">nDCG@10</div><div class="m-value">0.563</div><div class="m-note">基线 0.184</div></div>
+          <div class="metric"><div class="m-label">检索 P95 延迟</div><div class="m-value">19 ms</div><div class="m-note">微调前 876 ms</div></div>
+          <div class="metric"><div class="m-label">无答案题拒答率</div><div class="m-value">87.5%</div><div class="m-note">门控前 0%</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">Python</span><span class="tag">BM25</span><span class="tag">bge-m3</span>
+        <span class="tag">FAISS</span><span class="tag">RRF</span><span class="tag">Qwen2.5 LoRA</span><span class="tag">FastAPI</span>
+        <a class="p-link" href="p1-rag.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">RESULT · 六套方案对比</div>
+        <div class="pmedia-wide">
+          <img src="assets/rag/systems.png" alt="六套检索方案指标对比">
+          <div class="pmedia-wide-cap">1117 题核验集：两路 RRF 相比 v0 把 Recall@5 从 0.206 提到 0.502</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 02 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 02</span><span class="badge">具身智能</span><span class="badge mute">科研项目</span></div>
+          <h3 class="p-title">长程任务示范数据拼接</h3>
+          <p class="p-sub">语义锚点双侧裁剪 + 段内遮中过渡生成 + 五级观测门控</p>
+          <p class="p-desc">
+            长程操作任务的完整人工示范采集成本高，本项目用两条短程技能示范自动拼出可用的长程训练数据。
+            难点不在「接起来」，而在接缝处的动作连续性与观测缺口。
+          </p>
+          <ul class="p-hl">
+            <li><b>语义锚点</b>：以 D_A 最后一次 release、D_B 第一次 grasp 为不可越界的裁剪边界</li>
+            <li><b>过渡生成</b>：段内遮中（in-betweening）训练 1D U-Net，FiLM 调制 + cross-attention 双向条件</li>
+            <li><b>观测补齐</b>：SE(3) 半径内检索真实帧 → 运动感知生成 → 模糊兜底，逐帧三级降级</li>
+            <li><b>门组预注册</b>：接缝速度/加速度/终点/时长全部先定阈值后看结果，测量缺失即 fail-closed</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">官方数据两段式筛取</div><div class="m-value">244</div><div class="m-note">从 2500 条中，94,390 帧</div></div>
+          <div class="metric"><div class="m-label">拼接组帧数</div><div class="m-value">92,502</div><div class="m-note">对照 dfull 94,390</div></div>
+          <div class="metric"><div class="m-label">接缝幅度</div><div class="m-value">1.32 rad</div><div class="m-note">交叉配对；同源 0.0096</div></div>
+          <div class="metric"><div class="m-label">契约测试</div><div class="m-value">49 / 49</div><div class="m-note">全部通过</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">Python</span><span class="tag">PyTorch</span><span class="tag">LeRobot</span>
+        <span class="tag">ALOHA</span><span class="tag">RoboTwin</span><span class="tag">Grounding DINO</span>
+        <a class="p-link" href="p2-stitch.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">DEMO · ALOHA 开合门单次行程</div>
+        <div class="pmedia-grid two">
+          <div class="clip">
+            <video src="assets/aloha_door_once.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">开门 → 关门 · 完整一次</div>
+          </div>
+          <div class="clip">
+            <video src="assets/aloha_stitch_once.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">拼接序列 · 完整一次</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 03 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 03</span><span class="badge gold">全国一等奖</span><span class="badge mute">源码不公开</span></div>
+          <h3 class="p-title">双臂二指解魔方机器人</h3>
+          <p class="p-sub">四摄像头六面识别 + 透视校正 + Kociemba 求解 + 时间最优双臂动作寻优</p>
+          <p class="p-desc">
+            面向魔方自动复原，需要同时解决「六面视觉感知」与「双臂机械动作解算」的协同。
+            负责上位机全链路：视觉识别、求解调度、机械动作寻优、串口通信与整机联调。
+          </p>
+          <ul class="p-hl">
+            <li><b>视觉</b>：DirectShow 四路采集，LAB 空间 Canny + 轮廓矩质心 + K-Means(K=6) 颜色聚类</li>
+            <li><b>求解</b>：Kociemba 两阶段给出 8 组解，再按同轴组合展开为可执行的机械步骤</li>
+            <li><b>寻优</b>：按实测单步耗时累加，在 8 组解 × 2 步 / 2.5 步两套搜索中取总时间最小</li>
+            <li><b>执行</b>：自定义串口协议下发，速度曲线预存 Flash，双臂一手持一手拧</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">竞赛成绩</div><div class="m-value">全国一等奖</div><div class="m-note">中国高校智能机器人创意大赛</div></div>
+          <div class="metric"><div class="m-label">上位机代码</div><div class="m-value">21.4k 行</div><div class="m-note">14 个 C# 源文件</div></div>
+          <div class="metric"><div class="m-label">机械寻优</div><div class="m-value">2 / 2.5 步</div><div class="m-note">两套搜索并行比较</div></div>
+          <div class="metric"><div class="m-label">闭环</div><div class="m-value">可连续复原</div><div class="m-note">采集→识别→求解→执行</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">C#</span><span class="tag">WinForms</span><span class="tag">OpenCvSharp</span>
+        <span class="tag">DirectShow</span><span class="tag">Kociemba</span>
+        <a class="p-link" href="p3-cube.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">DEMO · 真机复原</div>
+        <div class="pmedia-grid two">
+          <div class="clip vertical">
+            <video src="assets/cube_demo.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">双臂夹持 · 逐层转动复原</div>
+          </div>
+          <div class="clip vertical">
+            <img src="assets/cube_frame_060.jpg" alt="双臂二指夹持机构与魔方">
+            <div class="clip-cap">双臂二指夹持机构 · 魔方就位</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 04 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 04</span><span class="badge">边缘部署</span><span class="badge mute">大创</span></div>
+          <h3 class="p-title">面向银发经济的端侧动作识别与跌倒预警</h3>
+          <p class="p-sub">YOLO11n-Pose + 1D-CNN 在单颗 STM32N6 上的 NPU/CPU 级联</p>
+          <p class="p-desc">
+            居家养老跌倒预警中，穿戴设备依从性差、云端方案有隐私与带宽风险。
+            本项目把姿态估计与时序动作分类全部放在端侧，原始图像不出设备。
+          </p>
+          <ul class="p-hl">
+            <li><b>两级级联</b>：YOLO11n-Pose 提 17 个 COCO 关键点，1D-CNN 对 11 帧序列分类 6 类动作</li>
+            <li><b>体型归一</b>：以左右肩-胯距离均值为基准做分段归一化，消除个体体型与拍摄距离差异</li>
+            <li><b>压缩</b>：int8 量化 + 幅度剪枝 / 结构化通道剪枝，权重较 float 降 74.1%</li>
+            <li><b>异构</b>：姿态模型走 NPU、分类模型走 CPU，同循环内串行级联，互不阻塞</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">板端识别准确率</div><div class="m-value">90.4%</div><div class="m-note">论文报告</div></div>
+          <div class="metric"><div class="m-label">推理时间 / 帧率</div><div class="m-value">36 ms</div><div class="m-note">16 FPS</div></div>
+          <div class="metric"><div class="m-label">部署模型</div><div class="m-value">1×11×34</div><div class="m-note">int8 → 6 类</div></div>
+          <div class="metric"><div class="m-label">MACC / 权重</div><div class="m-value">69.7k</div><div class="m-note">12,184 B</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">Python</span><span class="tag">YOLO11n-Pose</span><span class="tag">1D-CNN</span>
+        <span class="tag">TFLite</span><span class="tag">STM32N6</span><span class="tag">STEdge AI</span>
+        <a class="p-link" href="p4-edge.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">DEMO · 板端实机运行</div>
+        <div class="pmedia-grid two">
+          <div class="clip vertical">
+            <video src="assets/stm32_demo.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">STM32N6570-DK · 实时骨骼与分类</div>
+          </div>
+          <div class="clip vertical">
+            <img src="assets/stm32_5actions.jpg" alt="五类动作板端识别结果" style="object-fit:contain;background:#0b0c0e;padding:6px">
+            <div class="clip-cap">五类动作 · 板端识别结果</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 05 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 05</span><span class="badge">模仿学习</span><span class="badge mute">个人项目</span></div>
+          <h3 class="p-title">基于 LeRobot 的模仿学习策略：DP 与 DP3</h3>
+          <p class="p-sub">视觉策略与点云策略两条路线，共用同一份数据与评测协议</p>
+          <p class="p-desc">
+            在 SO-101 机械臂上实践两条模仿学习路线：DP（视觉-only）与 DP3（点云）。
+            两者观测步数、动作视界、执行步数与扩散步数完全对齐，差异只在输入模态，便于直接对照。
+            从运动学建模到手眼标定、数据采集、训练部署，整条链路自行实现。
+          </p>
+          <ul class="p-hl">
+            <li><b>运动学</b>：按 SO-101 的 URDF 参数推导六自由度正运动学，由关节角求末端位姿</li>
+            <li><b>手眼标定</b>：AprilTag 眼在手外标定，自行求解基座到相机的外参</li>
+            <li><b>数据</b>：深度图反投影到基座系生成逐帧点云，53 条示范 / 16,977 帧与视频帧一一对应</li>
+            <li><b>DP</b>：ResNet18 + 1D U-Net 条件扩散，输入单目图像与 6 维关节状态</li>
+            <li><b>DP3</b>：PointNet 用 Conv1d 逐点编码，与 ResNet 双流融合后注入条件 DDPM</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">DP 开环平均误差</div><div class="m-value">0.0252</div><div class="m-note">10 条轨迹 / 250 帧</div></div>
+          <div class="metric"><div class="m-label">DP3 最佳 loss</div><div class="m-value">0.002695</div><div class="m-note">20,000 步</div></div>
+          <div class="metric"><div class="m-label">数据规模</div><div class="m-value">16,977</div><div class="m-note">帧 / 53 episodes</div></div>
+          <div class="metric"><div class="m-label">点云帧数</div><div class="m-value">16,977</div><div class="m-note">与视频帧一一对应</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">Python</span><span class="tag">PyTorch</span><span class="tag">LeRobot</span>
+        <span class="tag">PointNet</span><span class="tag">DDPM</span><span class="tag">Open3D</span>
+        <a class="p-link" href="p5-lerobot.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">DEMO · 策略运行与点云</div>
+        <div class="pmedia-grid two">
+          <div class="clip">
+            <video src="assets/real_so101_small.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">SO-101 真机 · 策略执行</div>
+          </div>
+          <div class="clip">
+            <video src="assets/robotwin_dual.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">RoboTwin 仿真 · 双臂任务</div>
+          </div>
+        </div>
+        <div class="pmedia-wide">
+          <img src="assets/pointcloud_hero.jpg" alt="相机视角与点云重建对照">
+          <div class="pmedia-wide-cap">从单目画面反投影出的彩色点云 · 已变换到机器人基座坐标系</div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="sec" id="skills">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02 / STACK</span>
+      <h2 class="sec-title">技术栈</h2>
+      <span class="sec-note">按方向</span>
+    </div>
+    <div class="skill-grid">
+      <div class="skill-card reveal">
+        <h4>检索与 LLM 应用</h4>
+        <div class="skill-list">
+          <span>BM25</span><span>jieba</span><span>bge-m3</span><span>FAISS</span>
+          <span>知识图谱</span><span>RRF</span><span>Self-RAG 门控</span>
+          <span>Qwen2.5 LoRA</span><span>DPO</span><span>FastAPI</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <h4>具身智能与 VLA</h4>
+        <div class="skill-list">
+          <span>ALOHA</span><span>RoboTwin</span><span>LeRobot</span>
+          <span>14D 动作空间</span><span>过渡生成</span><span>观测补齐</span>
+          <span>Diffusion Policy</span><span>DP3</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <h4>视觉与机器人</h4>
+        <div class="skill-list">
+          <span>OpenCV</span><span>轮廓分析</span><span>透视校正</span>
+          <span>K-Means</span><span>Kociemba</span><span>双臂动作规划</span>
+          <span>手眼标定</span><span>PointNet</span><span>Open3D</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <h4>边缘部署</h4>
+        <div class="skill-list">
+          <span>STM32N6570-DK</span><span>STEdge AI</span><span>TFLite int8</span>
+          <span>模型剪枝</span><span>NPU/CPU 异构</span><span>RealSense</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03 / ABOUT</span>
+      <h2 class="sec-title">关于</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>
+          我在做的事，大多围绕同一类问题：<strong>模型在实验室里跑通，和在真实约束下可用，中间隔着一整条工程链路</strong>。
+          离线检索要在没有 API 的前提下保证可溯源；长程数据要靠短程示范拼出来；
+          机器人要把视觉、求解、机械指令和串口时序对齐；端侧要在几十 KB 的 RAM 里跑完两级模型。
+        </p>
+        <p>
+          这些项目的共同做法是：<strong>先把指标定义清楚，再动手实现</strong>。
+          RAG 项目用 1117 题核验集做逐层消融；数据拼接项目把验收阈值预注册成 JSON，先定门后看结果；
+          端侧项目把量化后的 MACC 和 RAM 从工具报告里核出来。指标能复算，结论才站得住。
+        </p>
+        <p>
+          目前关注 Agent 开发与 LLM 应用方向，尤其是检索增强与具身智能的结合。
+        </p>
+      </div>
+      <div class="facts reveal">
+        <div class="fact"><dt>学校</dt><dd>电子科技大学</dd></div>
+        <div class="fact"><dt>专业</dt><dd>信息工程 · 2027 届</dd></div>
+        <div class="fact"><dt>GPA</dt><dd>3.94 / 4.0</dd></div>
+        <div class="fact"><dt>专业排名</dt><dd>4 / 109</dd></div>
+        <div class="fact"><dt>去向</dt><dd>已保研本校</dd></div>
+        <div class="fact"><dt>竞赛</dt><dd>全国一等奖</dd></div>
+        <div class="fact"><dt>英语</dt><dd>CET-6</dd></div>
+        <div class="fact"><dt>邮箱</dt><dd>shuipy_uestc@163.com</dd></div>
+        <div class="fact"><dt>地点</dt><dd>成都</dd></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>© 2026 水鹏云 · 作品集</span>
+    <span><a href="mailto:shuipy_uestc@163.com">shuipy_uestc@163.com</a></span>
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.clip').forEach(clip => {
+  const v = clip.querySelector('video');
+  if (!v) return;
+  clip.addEventListener('click', () => {
+    if (v.paused) {
+      // 同一时间只播一个
+      document.querySelectorAll('.clip video').forEach(o => { if (o !== v) { o.pause(); o.closest('.clip').classList.remove('playing'); } });
+      v.play();
+      clip.classList.add('playing');
+    } else {
+      v.pause();
+      clip.classList.remove('playing');
+    }
+  });
+  v.addEventListener('ended', () => clip.classList.remove('playing'));
+});
+
+document.documentElement.classList.remove('no-js');
+document.documentElement.classList.add('js');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.style.transitionDelay = (i % 3) * 70 + 'ms';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>

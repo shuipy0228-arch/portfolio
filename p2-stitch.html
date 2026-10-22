@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长程任务示范数据拼接 · 水鹏云</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%237dd3c0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="detail.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="back" href="index.html">← 作品集</a>
+    <span class="crumb">PROJECT 02 / DATA STITCH</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>2026.05 — 2026.08 · 科研项目</div>
+    <h1>长程任务示范的<br>数据拼接</h1>
+    <p class="lede">
+      长程操作任务的完整人工示范采集成本高、场景覆盖稀疏。这个项目用两条短程技能示范，
+      裁掉冗余段、生成过渡段、补齐观测，拼出可训练的长程序列。
+    </p>
+    <div class="hero-meta">
+      <span class="pill hi">244 条两段式 episode</span>
+      <span class="pill">49 契约测试</span>
+      <span class="pill">ALOHA / RoboTwin</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">官方数据筛选</div><div class="v">2500 → 244</div><div class="n">干净两段式</div></div>
+      <div class="metric"><div class="k">dfull / stitched</div><div class="v">94,390 / 92,502</div><div class="n">帧数差 2%</div></div>
+      <div class="metric"><div class="k">接缝幅度</div><div class="v">1.32 rad</div><div class="n">交叉配对</div></div>
+      <div class="metric"><div class="k">契约测试</div><div class="v">49 / 49</div><div class="n">全部通过</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">01</span>问题在哪</h2>
+    <p>
+      把「放盘子」和「放杯子」两段示范直接首尾相接，问题不在动作本身，而在接缝：
+      前一段结束时机械臂停在盘子附近，后一段开始时它已经在盘子旁准备抓杯——
+      两段之间的关节空间有跳变，腕部相机看到的画面也不连续。
+    </p>
+    <p>
+      直接拼出来的数据会教模型执行不可达的动作。所以要做的不是「接起来」，
+      而是<strong>裁掉两侧的冗余、补上中间缺失的那一段</strong>。
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">02</span>裁剪与拼接</h2>
+    <p class="sec-sub">语义锚点决定了哪一段能裁、哪一段不能碰。</p>
+    <figure>
+      <img src="assets/stitch/crop.png" alt="语义锚点裁剪与拼接示意">
+      <figcaption>D_A 以最后一次 release 为界、D_B 以第一次 grasp 为界；中间由生成器补出 14D 过渡动作</figcaption>
+    </figure>
+    <ul class="pts">
+      <li><b>锚点不可越过</b>：release 之后的动作才算冗余，grasp 之前的接近段才算冗余。越界即拒绝对，不降级为滑动窗口。</li>
+      <li><b>裁剪有下界</b>：每侧至少保留 30 帧，并受裁剪比例上限与过渡时长窗口约束。</li>
+      <li><b>过渡段是学出来的</b>：段内遮中（in-betweening）训练，历史窗口与目标窗口双向条件，输出 14D 动作序列。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">03</span>数据集</h2>
+    <p class="sec-sub">从 RoboTwin 官方 2500 条 episode 里，按实测关节运动而非指令文本筛出可用的两段式样本。</p>
+    <figure>
+      <img src="assets/stitch/dataset.png" alt="数据集规模与接缝幅度">
+      <figcaption>左：两组帧数接近（差 2%），保证对照公平；右：交叉配对的接缝才是拼接方法要吸收的真实难度</figcaption>
+    </figure>
+    <table>
+      <tr><th>筛选步骤</th><th>条件</th><th>数量</th></tr>
+      <tr><td>官方 episode</td><td>RoboTwin LeRobot 格式</td><td>2,500</td></tr>
+      <tr><td>双臂任务</td><td>两臂均有明显关节运动</td><td>1,119</td></tr>
+      <tr><td>干净两段式</td><td>两臂活动重叠 &lt;10%，切分点两侧各 ≥40 帧</td><td><span class="em">244</span></td></tr>
+    </table>
+    <p>
+      为什么必须交叉配对：如果用 <code>d_a[i] + d_b[i]</code>，拼出来就是原 episode 本身，两组完全相同。
+      所以用 <code>d_a[i] + d_b[j]</code>（i≠j），接缝从 0.0096 rad 拉大到 1.32 rad——
+      这个差距正是拼接方法要解决的问题。
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">04</span>单次行程</h2>
+    <p class="sec-sub">采集与拼接两种数据在同一任务上的完整行程，各截取一次，不做剪辑。</p>
+    <div class="figrow">
+      <div class="video-block">
+        <video src="assets/aloha_door_once.mp4" muted playsinline preload="metadata" loop controls></video>
+        <div class="video-cap">开门 → 关门 · 完整一次</div>
+      </div>
+      <div class="video-block">
+        <video src="assets/aloha_stitch_once.mp4" muted playsinline preload="metadata" loop controls></video>
+        <div class="video-cap">拼接序列 · 完整一次</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">05</span>门组与降级</h2>
+    <p class="sec-sub">所有验收阈值预先注册在 JSON 里，先定门后看结果；测量缺失一律视为不通过。</p>
+    <div class="cards">
+      <div class="card"><h4>动作门组</h4><p>G1 接缝速度跳变、G2 加速度、G3 终点硬门、G5 时长上限，另有效率下限防止绕远路。</p></div>
+      <div class="card"><h4>观测三级降级</h4><p>L1 在 SE(3) 半径内检索真实帧；检索不到即视为该帧未覆盖，降级到 L2 生成或 L4 模糊。</p></div>
+      <div class="card"><h4>跨度纪律</h4><p>生成机制只在 2–6 帧内验证过；超过 6 帧强制降级，不静默生成。</p></div>
+      <div class="card"><h4>契约测试</h4><p>49 项测试锁死锚点越界、预算不可行、阈值一致性、证据缺失等语义。</p></div>
+    </div>
+    <pre><code>python tools/test_v21_contracts.py
+# Ran 49 tests in 0.42s
+# OK</code></pre>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>© 2026 水鹏云</span>
+    <a href="index.html">← 返回作品集</a>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeRobot 模仿学习：DP 与 DP3 · 水鹏云</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%237dd3c0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="detail.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="back" href="index.html">← 作品集</a>
+    <span class="crumb">PROJECT 05 / LEROBOT IMITATION</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>2026.03 — 2026.04 · 个人项目</div>
+    <h1>基于 LeRobot 的<br>模仿学习策略：DP 与 DP3</h1>
+    <p class="lede">
+      在 SO-101 机械臂上实践两条模仿学习路线：DP（视觉-only）与 DP3（点云）。
+      从 URDF 正运动学、AprilTag 手眼标定、深度点云采集，到策略训练与部署评测，整条链路自行实现。
+    </p>
+    <div class="hero-meta">
+      <span class="pill hi">DP 开环误差 0.0252</span>
+      <span class="pill">DP3 loss 0.002695</span>
+      <span class="pill">16,977 帧</span>
+      <span class="pill">SO-101 + RealSense</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">DP 开环误差</div><div class="v">0.0252</div><div class="n">10 条 / 250 帧</div></div>
+      <div class="metric"><div class="k">DP3 最佳 loss</div><div class="v">0.002695</div><div class="n">20,000 步</div></div>
+      <div class="metric"><div class="k">数据规模</div><div class="v">16,977</div><div class="n">帧 / 53 episodes</div></div>
+      <div class="metric"><div class="k">点云帧数</div><div class="v">16,977</div><div class="n">与视频帧一一对应</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">01</span>两条路线</h2>
+    <p class="sec-sub">
+      同一份数据、同一套评测协议，唯一变量是观测模态。
+      观测步数、动作视界、执行步数与扩散步数全部对齐，所以两边的差异可以归因到输入。
+    </p>
+    <div class="cards">
+      <div class="card">
+        <h4>DP · 视觉-only</h4>
+        <p>ResNet18 编码单目彩色图，与 6 维关节状态拼接后送入 1D U-Net 条件扩散。训练 20,000 步，开环误差 0.0252。</p>
+      </div>
+      <div class="card">
+        <h4>DP3 · 点云</h4>
+        <p>额外接入 2048 点云，PointNet 逐点编码后与图像特征融合，再把条件注入 DDPM。训练 20,000 步，最佳 loss 0.002695。</p>
+      </div>
+    </div>
+    <p>
+      选择逻辑：图像路线部署成本低、对相机标定不敏感；点云路线把几何从「隐式学习」变成「显式输入」，
+      在需要精确空间关系的抓取任务上更有优势，代价是必须有一整套深度采集与标定管线。
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">02</span>DP3 结构</h2>
+    <p class="sec-sub">点云、图像、状态三路编码，融合后驱动条件扩散生成动作序列。</p>
+    <figure>
+      <img src="assets/dp3arch.png" alt="DP3 网络结构">
+      <figcaption>点云与图像各 128 维，拼接后 256 维作为扩散模型的条件向量</figcaption>
+    </figure>
+    <ul class="pts">
+      <li><b>PointNet 用 Conv1d 而非 Linear</b>：逐点特征提取不需要 reshape，GPU 并行效率更高。</li>
+      <li><b>扩散模型是自研的</b>：条件 DDPM，正弦时间步嵌入 + 1D U-Net 主干，支持 <code>squaredcos_cap_v2</code> 噪声调度与 DDIM 采样。</li>
+      <li><b>训练配方是段内遮中</b>：预测被遮住的中间动作，历史窗口与目标窗口双向条件，不依赖跨 episode 结构。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">03</span>几何链路</h2>
+    <p class="sec-sub">点云不是现成的，是从相机画面一步步算出来的。这部分全部自行实现。</p>
+
+    <h3>3.1 正运动学</h3>
+    <p>按 SO-101 的 URDF 参数实现六自由度正运动学，把关节角换算成末端在基座系下的位姿：</p>
+    <pre><code>def forward_kinematics_urdf(joint_rad):
+    q = np.array(joint_rad[:5]); T = np.eye(4)
+    # 每个关节：origin 变换（URDF 的 xyz/rpy） × 关节自身绕 z 旋转
+    T = T @ joint_transform([0.0388353, 0.0, 0.0624], [np.pi, 0.0, -np.pi], q[0])
+    T = T @ joint_transform([-0.11257, -0.028, 0.0],  [0.0, 0.0, np.pi/2], q[2])
+    ...
+    return T</code></pre>
+    <p>变换顺序为 <code>T_origin @ T_joint</code>，与 URDF 父子链定义一致；另有一份 MDH 参数版本做交叉验证。</p>
+
+    <h3>3.2 手眼标定</h3>
+    <p>眼在手外（eye-to-hand）标定，五个步骤自行完成：采集关节姿态与画面 → AprilTag36h11 角点检测 → 标定矩阵一致性检查 → 位姿与图像时间对齐 → 求解基座到相机外参 <code>T_base_cam</code>。</p>
+
+    <h3>3.3 点云重建</h3>
+    <p>深度图过滤无效值后按针孔模型反投影，再用外参变换到基座系，最后裁剪工作空间并体素下采样到固定点数。</p>
+    <figure>
+      <img src="assets/pointcloud_hero.jpg" alt="相机画面与点云重建对照">
+      <figcaption>左：点云来源的原始画面；右：由它反投影得到的点云（已变换到机器人基座坐标系）</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">04</span>真机与仿真</h2>
+    <p class="sec-sub">SO-101 真机执行抓取任务；RoboTwin 仿真验证双臂顺序任务。</p>
+    <div class="figrow">
+      <div class="video-block">
+        <video src="assets/real_so101_small.mp4" muted playsinline preload="metadata" loop controls></video>
+        <div class="video-cap">SO-101 真机 · 抓取任务</div>
+      </div>
+      <div class="video-block">
+        <video src="assets/robotwin_dual.mp4" muted playsinline preload="metadata" loop controls></video>
+        <div class="video-cap">RoboTwin 仿真 · 双臂任务</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">05</span>数据与训练</h2>
+    <table>
+      <tr><th>项目</th><th>数值</th></tr>
+      <tr><td>episode 数</td><td>53</td></tr>
+      <tr><td>总帧数 / 帧率</td><td>16,977 / 15 FPS</td></tr>
+      <tr><td>动作 / 状态维度</td><td>6（shoulder_pan、shoulder_lift、elbow_flex、wrist_flex、wrist_roll、gripper）</td></tr>
+      <tr><td>点云帧数</td><td>16,977（与视频帧一一对应）</td></tr>
+      <tr><td>DP 训练</td><td>20,000 步，batch 8，lr 2e-4</td></tr>
+      <tr><td>DP3 训练</td><td>20,000 步，batch 8，lr 2e-4 → 5e-5 分段衰减</td></tr>
+    </table>
+    <div class="cards">
+      <div class="card"><h4>数据处理</h4><p>按 (episode, frame) 索引加载预计算点云，解决帧裁剪导致的错位；16,977 帧点云用内存映射，避免全量驻留。</p></div>
+      <div class="card"><h4>开环评测</h4><p>10 条轨迹 × 25 帧共 250 帧，平均归一化误差 0.0252 ± 0.0081，10/10 条轨迹误差小于 0.05。</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>© 2026 水鹏云</span>
+    <a href="index.html">← 返回作品集</a>
+  </footer>
+</div>
+
+</body>
+</html>

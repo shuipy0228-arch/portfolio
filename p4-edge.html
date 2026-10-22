@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端侧动作识别与跌倒预警 · 水鹏云</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%237dd3c0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="detail.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="back" href="index.html">← 作品集</a>
+    <span class="crumb">PROJECT 04 / EDGE ACTION RECOGNITION</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>2025.06 — 2025.09 · 大学生创新创业训练计划</div>
+    <h1>面向银发经济的<br>端侧动作识别与跌倒预警</h1>
+    <p class="lede">
+      居家养老的跌倒预警里，穿戴设备依从性差、云端方案有隐私与带宽风险。
+      这个项目把姿态估计与时序动作分类全部放在端侧，原始图像不出设备，只上报结构化事件。
+    </p>
+    <div class="hero-meta">
+      <span class="pill hi">板端 90.4%</span>
+      <span class="pill">36 ms / 16 FPS</span>
+      <span class="pill">STM32N6570-DK</span>
+      <span class="pill">int8 量化 + 剪枝</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">识别准确率</div><div class="v">90.4%</div><div class="n">板端实测</div></div>
+      <div class="metric"><div class="k">端到端</div><div class="v">36 ms</div><div class="n">16 FPS</div></div>
+      <div class="metric"><div class="k">模型输入</div><div class="v">1×11×34</div><div class="n">int8 → 6 类</div></div>
+      <div class="metric"><div class="k">权重</div><div class="v">12.2 KB</div><div class="n">较 float 降 74.1%</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">01</span>板端实机</h2>
+    <p class="sec-sub">STM32N6570-DK 上实时跑两级模型，屏幕左下角显示当前推理耗时。</p>
+    <div class="video-block">
+      <video src="assets/stm32_demo.mp4" muted playsinline preload="metadata" loop controls></video>
+      <div class="video-cap">开发板实机 · 实时骨骼与动作分类</div>
+    </div>
+    <figure>
+      <img src="assets/stm32_5actions.jpg" alt="五类动作板端识别结果">
+      <figcaption>fall / squat / stand / run / walk 五类动作的板端识别画面，画面底部为推理耗时</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">02</span>两级级联</h2>
+    <p class="sec-sub">一个做「看见人」，一个做「看懂动作」。两级跑在同一颗 MCU 上，喂给不同的处理单元。</p>
+    <ul class="pts">
+      <li><b>第一级 · 姿态估计</b>：YOLO11n-Pose 单阶段输出 17 个 COCO 关键点，int8 量化后部署到 NPU。</li>
+      <li><b>第二级 · 时序分类</b>：1D-CNN 对 11 帧滑窗（34 维/帧）做 6 类分类，跑在 CPU 上。</li>
+      <li><b>为什么分开</b>：姿态模型算力需求大、卷积多，适合 NPU；分类模型只有 69.7k MACC，放 CPU 更快，且两级互不阻塞。</li>
+      <li><b>滑窗保护</b>：本帧有效关键点少于 3 个就丢弃，不写进滑窗，避免遮挡帧污染时序特征。</li>
+    </ul>
+    <pre><code>// 滑窗满 11 帧后展开成 374 维，按量化参数转 int8
+const float input_scale = 0.0039199353f;
+const int   input_zero_point = -128;
+int32_t q = (int32_t)roundf(val / input_scale) + input_zero_point;
+
+// 推理后反量化取 argmax
+const char* class_names[] = {"fall","rise","run","squat","stand","walk"};</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">03</span>体型归一化</h2>
+    <p class="sec-sub">同一个人在不同距离、不同受试者之间，关键点的绝对分布差异很大，分类器会把体型当成特征。</p>
+    <p>
+      做法是以<strong>左右肩-胯距离的均值</strong>作为躯干长度基准，逐帧平移、按躯干长度缩放，
+      再映射回 [0,1]，兼容现有 int8 模型的输入契约。归一化后，「1 个躯干长度」在图像里占多少像素都映射到同一区间。
+    </p>
+    <pre><code>def normalize_frame(frame, span=1.5):
+    kp = frame.reshape(17, 2)
+    length = compute_torso_length(kp)          # 肩-胯距离均值
+    if length == 0: return frame              # 关键点缺失时退化
+    center = torso_center(kp)                  # 肩胯四点均值
+    scaled = (kp - center) / (2 * span * length) + 0.5
+    return np.clip(scaled, 0, 1)</code></pre>
+    <p>
+      自检用「同一姿态、不同拍摄距离」两组样本验证：原始坐标最大差异 0.1500，归一化后降到 <strong>0.0000</strong>。
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">04</span>压缩与量化</h2>
+    <p class="sec-sub">板端只有几十 KB 的 RAM 可用，模型必须先压再上。</p>
+    <figure>
+      <img src="assets/edge/perf.png" alt="板端资源与端到端指标">
+      <figcaption>左：1D-CNN 板端占用（STEdge AI 报告）；右：整机端到端指标</figcaption>
+    </figure>
+    <div class="cards">
+      <div class="card"><h4>int8 量化</h4><p>代表性数据集校准，输入输出全 int8，权重较 float 减少 74.1%。</p></div>
+      <div class="card"><h4>剪枝</h4><p>幅度剪枝（渐进式稀疏调度）与结构化通道剪枝两套实现，剪枝后需恢复训练再量化。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">05</span>训练过程</h2>
+    <p class="sec-sub">100 epoch 的实际训练日志：验证准确率在 epoch 88 达到峰值 83.7%，末段趋于收敛。</p>
+    <figure>
+      <img src="assets/edge/training.png" alt="训练与验证曲线">
+      <figcaption>左：准确率曲线（峰值标注为验证集）；右：loss 曲线，训练与验证同步下降</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">06</span>完整闭环</h2>
+    <p class="sec-sub">从零到板端可运行，中间每一步都自己走过一遍。</p>
+    <div class="cards">
+      <div class="card"><h4>采集与标注</h4><p>PyQt 界面做视频抽帧、YOLO 关键点提取、滑窗切分与 CSV 落盘，标签按视频区间批量指定。</p></div>
+      <div class="card"><h4>训练与量化</h4><p>Keras 训练 → TFLite int8 量化 → 推理自检；量化参数与板端 C 代码保持一致。</p></div>
+      <div class="card"><h4>生成与部署</h4><p>STEdge AI 生成 C 模型，与 YOLO-Pose 应用层合并编译，烧录后板端直接运行。</p></div>
+      <div class="card"><h4>数据检查</h4><p>三个脚本分别校验 episode 完整性、特征形状一致性、动作分布异常，避免脏数据进训练。</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>© 2026 水鹏云</span>
+    <a href="index.html">← 返回作品集</a>
+  </footer>
+</div>
+
+</body>
+</html>

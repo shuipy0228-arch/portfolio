@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双臂二指解魔方机器人 · 水鹏云</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%237dd3c0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="detail.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="back" href="index.html">← 作品集</a>
+    <span class="crumb">PROJECT 03 / RUBIK'S CUBE ROBOT</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>2026.03 — 2026.05 · 全国一等奖</div>
+    <h1>双臂二指<br>解魔方机器人</h1>
+    <p class="lede">
+      面向魔方自动复原，需要同时解决「六面视觉感知」与「双臂机械动作解算」。
+      上位机全链路自研：四路采集、透视校正、颜色聚类、求解调度、机械动作寻优、串口通信与整机联调。
+    </p>
+    <div class="hero-meta">
+      <span class="pill hi">中国高校智能机器人创意大赛 · 全国一等奖</span>
+      <span class="pill">21.4k 行 C#</span>
+      <span class="pill">8 组解 × 2 套搜索</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">竞赛成绩</div><div class="v">全国一等奖</div><div class="n">智能机器人创意大赛</div></div>
+      <div class="metric"><div class="k">上位机代码</div><div class="v">21.4k</div><div class="n">14 个 C# 源文件</div></div>
+      <div class="metric"><div class="k">机械寻优</div><div class="v">2 / 2.5 步</div><div class="n">两套搜索并行</div></div>
+      <div class="metric"><div class="k">闭环</div><div class="v">可连续复原</div><div class="n">采集→识别→求解→执行</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">01</span>真机复原</h2>
+    <p class="sec-sub">一手持魔方、一手拧。视觉识别到机械执行全流程自主完成。</p>
+    <div class="video-block">
+      <video src="assets/cube_demo.mp4" muted playsinline preload="metadata" loop controls></video>
+      <div class="video-cap">双臂夹持 · 逐层转动复原</div>
+    </div>
+    <div class="figrow">
+      <figure>
+        <img src="assets/cube/step1.jpg" alt="魔方就位，等待识别">
+        <figcaption>魔方就位 · 等待视觉识别</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/cube/step3.jpg" alt="执行转动中">
+        <figcaption>求解完成 · 按最优序列转动</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">02</span>视觉链路</h2>
+    <p class="sec-sub">OpenCV 同时打开四路 USB 摄像头会失败，所以采集层换成了 DirectShow。</p>
+    <ul class="pts">
+      <li><b>四路采集</b>：DirectShow + SampleGrabber 回调逐路抓帧，用标志位保证每轮四路都读过一遍才判定一次状态，避免半新半旧的图像拼出错误色块串。</li>
+      <li><b>轮廓筛选</b>：LAB 空间做 Canny，再按面积区间、矩形度（轮廓面积 / 最小外接矩形面积）、面积周长比三重判据筛出候选色块。</li>
+      <li><b>透视校正</b>：每个摄像头斜对魔方一面，直接取点会因透视形变；取轮廓四角按顺序做单应变换，把斜视面拉正为正方形再取色。</li>
+      <li><b>颜色聚类</b>：K-Means(K=6) 对 54 个色块聚类，按 LAB 通道排序把 6 个簇映射到六色，最后以每面中心块为锚打标签。</li>
+      <li><b>夹爪识别</b>：U/D 面额外识别黑色夹爪，用矩形长宽比区分左右爪，保证机器人持魔方时仍能识别。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">03</span>机械动作寻优</h2>
+    <p class="sec-sub">Kociemba 只给「拧法序列」，不给「怎么用两只手拧」。这一层是项目里实现最重的部分。</p>
+    <p>
+      同一串 <code>U R' F2 ...</code>，双臂机器人有多种执行方式：哪只手持、哪只手拧、要不要先倒腾到另一面。
+      代码把它做成三层搜索：
+    </p>
+    <ul class="pts">
+      <li><b>同轴拆分</b>：把序列按对称轴分段，段间可交换次序，得到所有同轴组合。</li>
+      <li><b>机械展开</b>：每一步展开成具体的「哪只手、转多少度、爪子开合」，支持单步、双步与 2.5 步三种粒度。</li>
+      <li><b>时间最优</b>：按实测单步耗时累加，在 8 组 Kociemba 候选解上取全局最小，并把预期时间实时显示在界面上。</li>
+    </ul>
+    <p>
+      机械约束是推导出来的，不是试出来的：L/R 面用右臂拧、F/B 面用左臂拧、U/D 需先倒腾到 F/R 面；
+      不同持握姿态下同一动作步数不同，例如「左手拧只须 4 步，右手拧 8 步，所以弃右手拧」。
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">04</span>下位机通信</h2>
+    <p class="sec-sub">实时性靠下位机保证，而不是靠上位机按时发包。</p>
+    <div class="cards">
+      <div class="card"><h4>串口协议</h4><p>自定义帧格式：帧头 + 长度 + 指令 + 数据 + 校验和，波特率 115200。</p></div>
+      <div class="card"><h4>速度曲线</h4><p>90° 与 180° 各 32 组曲线写入 W25Q32 Flash，下位机按曲线独立执行，避免上位机抖动影响动作。</p></div>
+      <div class="card"><h4>电磁铁时序</h4><p>开爪、合爪、带转、空转的单步耗时全部实测标定，作为寻优的时间参数。</p></div>
+      <div class="card"><h4>机械调试</h4><p>内置调试面板支持单轴点动、脉冲标定、曲线对拍，换电机或结构调整后可重新标定。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">05</span>说明</h2>
+    <p>
+      本项目源码涉及比赛作品的完整实现，按团队约定不对外开源。本页展示的是系统设计与成果，
+      技术细节可在面试中就设计取舍、算法选型与工程实现展开。
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>© 2026 水鹏云</span>
+    <a href="index.html">← 返回作品集</a>
+  </footer>
+</div>
+
+</body>
+</html>

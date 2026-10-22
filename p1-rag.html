@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>具身智能离线证据检索系统 · 水鹏云</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0b0d'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%237dd3c0'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="detail.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="back" href="index.html">← 作品集</a>
+    <span class="crumb">PROJECT 01 / RAG</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>2026.09 — 2026.10 · 个人项目</div>
+    <h1>具身智能领域的<br>离线证据检索系统</h1>
+    <p class="lede">
+      在完全离线、不依赖真机与外部 API 的条件下，对论文、机器人手册、实验记录做可溯源的检索作答。
+      BM25、稠密向量与知识图谱三路召回，RRF 融合，再由证据充分性门控决定是否作答。
+    </p>
+    <div class="hero-meta">
+      <span class="pill hi">Recall@5 0.668</span>
+      <span class="pill">P95 19 ms</span>
+      <span class="pill">拒答率 87.5%</span>
+      <span class="pill">1117 题核验集</span>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="k">Recall@5</div><div class="v">0.668</div><div class="n">基线 v0 为 0.206</div></div>
+      <div class="metric"><div class="k">nDCG@10</div><div class="v">0.563</div><div class="n">基线 0.184</div></div>
+      <div class="metric"><div class="k">检索 P95</div><div class="v">19 ms</div><div class="n">微调前 876 ms</div></div>
+      <div class="metric"><div class="k">无答案题拒答</div><div class="v">87.5%</div><div class="n">门控前 0%</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">01</span>系统怎么跑</h2>
+    <p class="sec-sub">一次查询经过路由、三路召回、融合、Agent 层处理，最后被门控决定「回答还是拒答」。</p>
+    <figure>
+      <img src="assets/rag/pipeline.png" alt="检索链路架构">
+      <figcaption>检索链路：路由 → 三路召回 → RRF 融合 → Agent 层 → 门控 → 带引用作答</figcaption>
+    </figure>
+    <ul class="pts">
+      <li><b>三路召回各管一段</b>：BM25 对术语精确、稠密向量对改写友好、知识图谱提供实体间关系；单路都有盲区，所以用 RRF 按名次融合。</li>
+      <li><b>路由是加法式而非分类器</b>：BM25 + Dense 恒为基座，只在命中英文大写词或重复中文专名时追加图谱路。规则可单测，不引入新的失败模式。</li>
+      <li><b>拒答放在 Agent 层</b>：由 LLM 判断证据是否足以回答，判 no 直接拒答。行为约束放在架构位置，比压进模型权重更可靠。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">02</span>指标对比</h2>
+    <p class="sec-sub">同一套 1117 题核验集上，六种方案的检索质量。两路 RRF 相比 v0 把 Recall@5 从 0.206 提到 0.502。</p>
+    <figure>
+      <img src="assets/rag/systems.png" alt="六套检索方案指标对比">
+      <figcaption>Recall@5 / nDCG@10 / MRR@10 三项指标，颜色区分指标而非方案</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/rag/bytype.png" alt="分题型增益">
+      <figcaption>按题型拆分：单证据题 +0.301，多跳题 +0.186，两类都有明显提升</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">03</span>延迟</h2>
+    <p class="sec-sub">融合会让排序变好，但通常也意味着更多计算。这里的关键是：排序质量与延迟可以同时改善。</p>
+    <figure>
+      <img src="assets/rag/latency.png" alt="P95 延迟对比">
+      <figcaption>纵轴为对数刻度；v0 的 876 ms 主要耗在逐 chunk 的词袋余弦计算上</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">04</span>领域微调</h2>
+    <p class="sec-sub">用合成 QA 对 bge-m3 做对比学习微调（MNRL + 批内负例，2 epoch），这是全项目最大的单项增益。</p>
+    <figure>
+      <img src="assets/rag/finetune.png" alt="微调前后对比">
+      <figcaption>Recall@5 +0.166、Recall@10 +0.217、nDCG@10 +0.119；同时 P95 从 125 ms 降到 19 ms</figcaption>
+    </figure>
+    <pre><code># 微调核心：批内其他 query 的正例即作为负例
+model = SentenceTransformer("BAAI/bge-m3", device="cuda")
+loss  = losses.MultipleNegativesRankingLoss(model)
+model.fit(train_objectives=[(loader, loss)], epochs=2,
+          warmup_steps=warmup, optimizer_params={"lr": 2e-5})</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">05</span>门控拒答</h2>
+    <p class="sec-sub">端到端 66 题（其中 16 道无答案），检验「不知道就拒答」这件事是否真的做到。</p>
+    <figure>
+      <img src="assets/rag/gating.png" alt="端到端门控表现">
+      <figcaption>无答案题正确拒答 87.5%；引用支持率 0.36 反映生成侧仍有提升空间</figcaption>
+    </figure>
+    <div class="cards">
+      <div class="card">
+        <h4>为什么不做进 DPO</h4>
+        <p>拒答样本仅 72 条、接受样本 973 条，信号被完全淹没。三轮 DPO 后拒答率始终为 0，改为门控后一次到位。</p>
+      </div>
+      <div class="card">
+        <h4>门控的代价</h4>
+        <p>判定器对已召回 gold 的题约有 39% 误拒。改进方向是更强的判定器，或判定与生成用不同模型。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">06</span>工程结构</h2>
+    <div class="cards">
+      <div class="card"><h4>检索层</h4><p><code>retrievers_v1.py</code> 实现 BM25 与 bge-m3 + FAISS；<code>graph_v2.py</code> 负责实体归一化与一跳邻居扩展。</p></div>
+      <div class="card"><h4>Agent 层</h4><p><code>agent.py</code> 含规则路由、多跳拆分、低分自检改写与证据充分性门控，纯标准库实现。</p></div>
+      <div class="card"><h4>评测</h4><p><code>metrics.py</code> 覆盖 Recall / Precision / MRR / nDCG / 引用支持率；65 个用例，实测 62 passed。</p></div>
+      <div class="card"><h4>服务</h4><p><code>api.py</code> 暴露 <code>/health</code> <code>/retrieve</code> <code>/answer</code>，无语料时返回明确提示而非崩溃。</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>© 2026 水鹏云</span>
+    <a href="index.html">← 返回作品集</a>
+  </footer>
+</div>
+
+</body>
+</html>
