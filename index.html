@@ -249,6 +249,10 @@ h3.p-title{
 
 /* ---------- about / contact ---------- */
 .about-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:52px}
+.about-grid-single{grid-template-columns:minmax(0,1fr);gap:34px;max-width:720px}
+.about-grid-single .about-text{font-size:16px}
+.about-grid-single .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}
+.about-grid-single .fact:nth-child(2){border-top:1px solid var(--line)}
 .about-text p{color:var(--fg-dim);font-size:15px;line-height:1.95;margin-bottom:18px}
 .about-text p strong{color:var(--fg);font-weight:500}
 .facts{display:flex;flex-direction:column;gap:0}
@@ -280,6 +284,10 @@ footer a:hover{color:var(--accent)}
   .p-foot{padding:14px 24px}
   .p-side{padding:26px 24px}
   .about-grid{grid-template-columns:minmax(0,1fr);gap:36px}
+  .about-grid-single{max-width:none}
+  .about-grid-single .facts{grid-template-columns:minmax(0,1fr);gap:0}
+  .about-grid-single .fact:nth-child(2){border-top:none}
+  .fact dd{word-break:break-all}
   .shots{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pmedia{padding:20px 24px 22px}
   .pmedia-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -322,8 +330,8 @@ footer a:hover{color:var(--accent)}
     <div class="kicker">Agent 开发 / LLM 应用实习 · RAG · 具身智能</div>
     <h1>水鹏云<br><span class="thin">作品集</span></h1>
     <p class="hero-sub">
-      电子科技大学信息工程专业，2027 届。做检索增强、具身智能与嵌入式方向的工作，
-      习惯把一个项目从数据做到能跑起来的那一步。
+      本科就读于电子科技大学信息工程专业。作品集主要涉及 AI、具身智能、RAG 与嵌入式方向，
+      关注项目完整性：从数据与算法到评测、真机部署，能否打通全流程闭环，并以实测结果验证。
     </p>
     <div class="hero-meta">
       <span class="chip hi">中国高校智能机器人创意大赛 · 全国一等奖</span>
@@ -624,14 +632,11 @@ footer a:hover{color:var(--accent)}
       <span class="sec-num">03 / ABOUT</span>
       <h2 class="sec-title">关于</h2>
     </div>
-    <div class="about-grid">
+    <div class="about-grid about-grid-single">
       <div class="about-text reveal">
         <p>
-          本科读信息工程，做过检索、数据和机器人。
-          比起只把模型训出来，更在意它能不能在真实条件里跑起来。
-        </p>
-        <p>
-          目前在看 Agent 与 LLM 应用方向的机会，特别是检索和具身智能结合的部分。
+          我叫水鹏云，本科就读于电子科技大学信息工程专业，GPA 排名前 4%。
+          研究方向为具身智能与计算机视觉，目前在找 Agent / LLM 应用方向的实习——欢迎交流。
         </p>
       </div>
       <div class="facts reveal">
