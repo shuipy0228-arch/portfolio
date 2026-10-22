@@ -71,7 +71,7 @@ header{padding:104px 0 84px;position:relative}
 }
 .kicker::after{content:'';height:1px;flex:0 0 62px;background:linear-gradient(90deg,var(--accent),transparent)}
 h1{
-  font-family:var(--serif);font-size:clamp(42px,6.4vw,76px);
+  font-family:var(--serif);font-size:clamp(38px,5vw,58px);
   font-weight:700;line-height:1.1;letter-spacing:-.02em;margin-bottom:26px;
 }
 h1 .thin{color:var(--fg-dim);font-weight:400}
@@ -101,8 +101,14 @@ h1 .thin{color:var(--fg-dim);font-weight:400}
 .fact:first-child{border-top:1px solid var(--line)}
 .fact dt{color:var(--fg-faint);font-size:12.5px;white-space:nowrap}
 .fact dd{color:var(--fg);font-family:var(--mono);font-size:12.5px;text-align:right}
-.hero-facts{padding-top:14px;border-left:1px solid var(--line);padding-left:34px}
-.hero-facts .fact{padding:11px 0}
+.hero-sub strong{color:var(--fg);font-weight:600}
+.hero-facts-title{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid var(--line);
+}
+.hero-facts{border-left:1px solid var(--line);padding-left:34px}
+.hero-facts .fact{padding:10px 0}
 .hero-facts .fact:first-child{border-top:none}
 .hero-facts dd{font-size:12px}
 
@@ -329,9 +335,9 @@ footer a:hover{color:var(--accent)}
     <div class="hero-grid">
       <div class="hero-main">
         <div class="kicker">Agent 开发 / LLM 应用实习 · RAG · 具身智能</div>
-        <h1>水鹏云<br><span class="thin">作品集</span></h1>
+        <h1>作品集</h1>
         <p class="hero-sub">
-          我叫水鹏云，本科就读于电子科技大学信息工程专业，GPA 排名前 4%。
+          我叫<strong>水鹏云</strong>，本科就读于电子科技大学信息工程专业，GPA 排名前 4%。
           研究方向为具身智能与计算机视觉，目前在找 Agent / LLM 应用方向的实习——欢迎交流。
         </p>
         <p class="hero-sub hero-sub-2">
@@ -346,6 +352,7 @@ footer a:hover{color:var(--accent)}
         </div>
       </div>
       <aside class="hero-facts">
+        <div class="hero-facts-title">About me</div>
         <div class="fact"><dt>学校</dt><dd>电子科技大学</dd></div>
         <div class="fact"><dt>专业</dt><dd>信息工程 · 2027 届</dd></div>
         <div class="fact"><dt>GPA</dt><dd>3.94 / 4.0</dd></div>
