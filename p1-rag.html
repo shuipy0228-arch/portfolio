@@ -123,20 +123,13 @@ model.fit(train_objectives=[(loader, loss)], epochs=2,
   <div class="wrap">
     <h2><span class="num">06</span>演示界面</h2>
     <p class="sec-sub">
-      系统带一个问答式演示界面（Chainlit）：回答右侧挂证据卡片，可展开原文与来源；
-      底部的检索信号面板显示路由决策、各路召回的 top-3 与融合结果。支持离线抽取与服务器 LLM 两种模式，
-      后者走完整链路——路由 → 检索 → 低置信改写 → 证据充分性门控 → 带引用作答。
+      系统带一个问答式演示界面（Chainlit）：回答带编号引用，右侧证据卡片可展开原文与来源。
+      支持离线抽取与服务器 LLM 两种模式，后者走完整链路——路由 → 检索 → 低置信改写 → 证据充分性门控 → 带引用作答。
     </p>
     <figure>
       <img src="assets/rag/rag_ui_answer.jpg" alt="问答界面：回答带编号引用">
       <figcaption>回答携带 [n] 编号引用，顶部横幅显示当前运行模式（LLM 模式 = 服务器推理完整链路）</figcaption>
     </figure>
-    <div class="figrow">
-      <figure>
-        <img src="assets/rag/rag_ui_signals.jpg" alt="证据卡片与检索信号面板">
-        <figcaption>证据来源卡片与检索信号面板：路由决策、BM25 / 稠密各路 top-3、RRF 融合结果与耗时</figcaption>
-      </figure>
-    </div>
   </div>
 </section>
 
