@@ -121,7 +121,28 @@ model.fit(train_objectives=[(loader, loss)], epochs=2,
 
 <section>
   <div class="wrap">
-    <h2><span class="num">06</span>工程结构</h2>
+    <h2><span class="num">06</span>演示界面</h2>
+    <p class="sec-sub">
+      系统带一个问答式演示界面（Chainlit）：回答右侧挂证据卡片，可展开原文与来源；
+      底部的检索信号面板显示路由决策、各路召回的 top-3 与融合结果。支持离线抽取与服务器 LLM 两种模式，
+      后者走完整链路——路由 → 检索 → 低置信改写 → 证据充分性门控 → 带引用作答。
+    </p>
+    <figure>
+      <img src="assets/rag/rag_ui_answer.jpg" alt="问答界面：回答带编号引用">
+      <figcaption>回答携带 [n] 编号引用，顶部横幅显示当前运行模式（LLM 模式 = 服务器推理完整链路）</figcaption>
+    </figure>
+    <div class="figrow">
+      <figure>
+        <img src="assets/rag/rag_ui_signals.jpg" alt="证据卡片与检索信号面板">
+        <figcaption>证据来源卡片与检索信号面板：路由决策、BM25 / 稠密各路 top-3、RRF 融合结果与耗时</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">07</span>工程结构</h2>
     <div class="cards">
       <div class="card"><h4>检索层</h4><p><code>retrievers_v1.py</code> 实现 BM25 与 bge-m3 + FAISS；<code>graph_v2.py</code> 负责实体归一化与一跳邻居扩展。</p></div>
       <div class="card"><h4>Agent 层</h4><p><code>agent.py</code> 含规则路由、多跳拆分、低分自检改写与证据充分性门控，纯标准库实现。</p></div>
