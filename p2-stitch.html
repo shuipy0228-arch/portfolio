@@ -125,6 +125,43 @@
   </div>
 </section>
 
+
+<section>
+  <div class="wrap">
+    <h2><span class="num">06</span>π0.5 多卡 LoRA 微调</h2>
+    <p class="sec-sub">
+      拼接数据最终要证明它能训出策略。训练走 OpenPI（JAX/Flax）对 π0.5 做 LoRA 微调，
+      在 4 卡上以 FSDP 参数分片跑通。
+    </p>
+    <table>
+      <tr><th>配置项</th><th>取值</th></tr>
+      <tr><td>模型</td><td>π0.5，LoRA 双适配（<code>gemma_2b_lora</code> VLM 主干 + <code>gemma_300m_lora</code> 动作专家）</td></tr>
+      <tr><td>并行</td><td><code>fsdp_devices=4</code>，<code>batch_size=16</code>（4 卡 × 4 样本）</td></tr>
+      <tr><td>动作视界</td><td><code>action_horizon=20</code>，delta 关节 + 二值夹爪</td></tr>
+      <tr><td>训练框架</td><td>OpenPI / JAX + XLA，权重初始化 <code>pi05_base_jax</code></td></tr>
+      <tr><td>预处理</td><td><code>use_delta_joint_actions=True</code>，相机映射 cam_head → cam_high</td></tr>
+    </table>
+    <div class="cards">
+      <div class="card">
+        <h4>单卡放不下的解决路径</h4>
+        <p>24 GB 卡在 <code>init_train_state</code> 就报申请 4.8 GB 失败。改用 <code>fsdp_devices=4</code> 后失败点降到 527 MB，最终靠 <code>XLA_PYTHON_CLIENT_ALLOCATOR=platform</code> 解决——JAX 默认预分配整个显存池，换成按需增长的平台分配器才能跑。</p>
+      </div>
+      <div class="card">
+        <h4>两个容易踩的约束</h4>
+        <p><code>batch_size</code> 必须能被 <code>fsdp_devices</code> 整除（32÷5 直接报错，故用 4 卡）；<code>HF_DATASETS_CACHE</code> 与 <code>HF_HOME</code> 需指向大容量盘，否则根分区写满。</p>
+      </div>
+      <div class="card">
+        <h4>数据侧的三处修复</h4>
+        <p>LeRobot 0.1.0 要求 <code>meta/episodes_stats.jsonl</code>；图像列必须用 <code>datasets.to_parquet</code> 写出否则被推断成 dict；还需补齐 <code>index</code> / <code>timestamp</code> / <code>task_index</code> 三列。</p>
+      </div>
+      <div class="card">
+        <h4>对照设计</h4>
+        <p>拼接组与完整示范组使用完全相同的训练配置与步数，唯一的系统性差异是数据构造方式，保证差异可归因。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="wrap">
   <footer>
     <span>© 2026 水鹏云</span>
