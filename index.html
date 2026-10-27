@@ -377,46 +377,7 @@ footer a:hover{color:var(--accent)}
     <article class="project reveal">
       <div class="p-top">
         <div class="p-main">
-          <div class="p-index"><span>PROJECT 01</span><span class="badge">RAG</span><span class="badge mute">个人项目</span></div>
-          <h3 class="p-title">具身智能领域离线证据检索系统</h3>
-          <p class="p-sub">BM25 + 稠密向量 + 知识图谱三路召回，RRF 融合与证据充分性门控</p>
-          <p class="p-desc">
-            面向具身智能领域的证据检索：在完全离线、不依赖真机与外部 API 的条件下，
-            对论文、机器人手册、实验记录做可溯源检索作答。核心是让「召回」和「不编造」两件事同时可测量。
-          </p>
-          <ul class="p-hl">
-            <li><b>三路召回</b>：jieba + 标准 BM25、bge-m3 稠密向量（FAISS）、LLM 抽取三元组构建的知识图谱</li>
-            <li><b>加法式路由</b>：基础两路常开，命中英文大写词或重复中文专名时再叠加图谱路，规则可单测</li>
-            <li><b>门控拒答</b>：LLM 判证据是否充分，不足直接拒答，无答案题正确拒答率 87.5%</li>
-            <li><b>评测流水线</b>：QA 合成 → LLM-judge 核验 → 分层划分，Recall / nDCG / MRR 全量可复算</li>
-          </ul>
-        </div>
-        <aside class="p-side">
-          <div class="metric"><div class="m-label">Recall@5（微调后）</div><div class="m-value">0.668</div><div class="m-note">基线 0.206</div></div>
-          <div class="metric"><div class="m-label">nDCG@10</div><div class="m-value">0.563</div><div class="m-note">基线 0.184</div></div>
-          <div class="metric"><div class="m-label">检索 P95 延迟</div><div class="m-value">19 ms</div><div class="m-note">微调前 876 ms</div></div>
-          <div class="metric"><div class="m-label">无答案题拒答率</div><div class="m-value">87.5%</div><div class="m-note">门控前 0%</div></div>
-        </aside>
-      </div>
-      <div class="p-foot">
-        <span class="tag">Python</span><span class="tag">BM25</span><span class="tag">bge-m3</span>
-        <span class="tag">FAISS</span><span class="tag">RRF</span><span class="tag">Qwen2.5 LoRA</span><span class="tag">FastAPI</span>
-        <a class="p-link" href="p1-rag.html">查看详情 →</a>
-      </div>
-      <div class="pmedia">
-        <div class="pmedia-label">RESULT · 六套方案对比</div>
-        <div class="pmedia-wide">
-          <img src="assets/rag/systems.png" alt="六套检索方案指标对比">
-          <div class="pmedia-wide-cap">1117 题核验集：两路 RRF 相比 v0 把 Recall@5 从 0.206 提到 0.502</div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 02 -->
-    <article class="project reveal">
-      <div class="p-top">
-        <div class="p-main">
-          <div class="p-index"><span>PROJECT 02</span><span class="badge">具身智能</span><span class="badge mute">科研项目</span></div>
+          <div class="p-index"><span>PROJECT 01</span><span class="badge">具身智能</span><span class="badge mute">科研项目</span></div>
           <h3 class="p-title">长程任务示范数据拼接</h3>
           <p class="p-sub">语义锚点双侧裁剪 + 段内遮中过渡生成 + 五级观测门控</p>
           <p class="p-desc">
@@ -457,105 +418,11 @@ footer a:hover{color:var(--accent)}
           </div>
         </div>
       </div>
-    </article>
-
-    <!-- 03 -->
+    </article>    <!-- 02 -->
     <article class="project reveal">
       <div class="p-top">
         <div class="p-main">
-          <div class="p-index"><span>PROJECT 03</span><span class="badge gold">全国一等奖</span><span class="badge mute">源码不公开</span></div>
-          <h3 class="p-title">双臂二指解魔方机器人</h3>
-          <p class="p-sub">四摄像头六面识别 + 透视校正 + Kociemba 求解 + 时间最优双臂动作寻优</p>
-          <p class="p-desc">
-            面向魔方自动复原，需要同时解决「六面视觉感知」与「双臂机械动作解算」的协同。
-            负责上位机全链路：视觉识别、求解调度、机械动作寻优、串口通信与整机联调。
-          </p>
-          <ul class="p-hl">
-            <li><b>视觉</b>：DirectShow 四路采集，LAB 空间 Canny + 轮廓矩质心 + K-Means(K=6) 颜色聚类</li>
-            <li><b>求解</b>：Kociemba 两阶段给出 8 组解，再按同轴组合展开为可执行的机械步骤</li>
-            <li><b>寻优</b>：按实测单步耗时累加，在 8 组解 × 2 步 / 2.5 步两套搜索中取总时间最小</li>
-            <li><b>执行</b>：自定义串口协议下发，速度曲线预存 Flash，双臂一手持一手拧</li>
-          </ul>
-        </div>
-        <aside class="p-side">
-          <div class="metric"><div class="m-label">竞赛成绩</div><div class="m-value">全国一等奖</div><div class="m-note">中国高校智能机器人创意大赛</div></div>
-          <div class="metric"><div class="m-label">上位机代码</div><div class="m-value">21.4k 行</div><div class="m-note">14 个 C# 源文件</div></div>
-          <div class="metric"><div class="m-label">机械寻优</div><div class="m-value">2 / 2.5 步</div><div class="m-note">两套搜索并行比较</div></div>
-          <div class="metric"><div class="m-label">闭环</div><div class="m-value">可连续复原</div><div class="m-note">采集→识别→求解→执行</div></div>
-        </aside>
-      </div>
-      <div class="p-foot">
-        <span class="tag">C#</span><span class="tag">WinForms</span><span class="tag">OpenCvSharp</span>
-        <span class="tag">DirectShow</span><span class="tag">Kociemba</span>
-        <a class="p-link" href="p3-cube.html">查看详情 →</a>
-      </div>
-      <div class="pmedia">
-        <div class="pmedia-label">DEMO · 真机复原</div>
-        <div class="pmedia-grid two">
-          <div class="clip vertical">
-            <video src="assets/cube_demo.mp4" muted playsinline preload="metadata" loop></video>
-            <div class="play"><i></i></div>
-            <div class="clip-cap">双臂夹持 · 逐层转动复原</div>
-          </div>
-          <div class="clip vertical">
-            <img src="assets/cube_frame_060.jpg" alt="双臂二指夹持机构与魔方">
-            <div class="clip-cap">双臂二指夹持机构 · 魔方就位</div>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 04 -->
-    <article class="project reveal">
-      <div class="p-top">
-        <div class="p-main">
-          <div class="p-index"><span>PROJECT 04</span><span class="badge">边缘部署</span><span class="badge mute">大创</span></div>
-          <h3 class="p-title">面向银发经济的端侧动作识别与跌倒预警</h3>
-          <p class="p-sub">YOLO11n-Pose + 1D-CNN 在单颗 STM32N6 上的 NPU/CPU 级联</p>
-          <p class="p-desc">
-            居家养老跌倒预警中，穿戴设备依从性差、云端方案有隐私与带宽风险。
-            本项目把姿态估计与时序动作分类全部放在端侧，原始图像不出设备。
-          </p>
-          <ul class="p-hl">
-            <li><b>两级级联</b>：YOLO11n-Pose 提 17 个 COCO 关键点，1D-CNN 对 11 帧序列分类 6 类动作</li>
-            <li><b>体型归一</b>：以左右肩-胯距离均值为基准做分段归一化，消除个体体型与拍摄距离差异</li>
-            <li><b>压缩</b>：int8 量化 + 幅度剪枝 / 结构化通道剪枝，权重较 float 降 74.1%</li>
-            <li><b>异构</b>：姿态模型走 NPU、分类模型走 CPU，同循环内串行级联，互不阻塞</li>
-          </ul>
-        </div>
-        <aside class="p-side">
-          <div class="metric"><div class="m-label">板端识别准确率</div><div class="m-value">90.4%</div><div class="m-note">论文报告</div></div>
-          <div class="metric"><div class="m-label">推理时间 / 帧率</div><div class="m-value">36 ms</div><div class="m-note">16 FPS</div></div>
-          <div class="metric"><div class="m-label">部署模型</div><div class="m-value">1×11×34</div><div class="m-note">int8 → 6 类</div></div>
-          <div class="metric"><div class="m-label">MACC / 权重</div><div class="m-value">69.7k</div><div class="m-note">12,184 B</div></div>
-        </aside>
-      </div>
-      <div class="p-foot">
-        <span class="tag">Python</span><span class="tag">YOLO11n-Pose</span><span class="tag">1D-CNN</span>
-        <span class="tag">TFLite</span><span class="tag">STM32N6</span><span class="tag">STEdge AI</span>
-        <a class="p-link" href="p4-edge.html">查看详情 →</a>
-      </div>
-      <div class="pmedia">
-        <div class="pmedia-label">DEMO · 板端实机运行</div>
-        <div class="pmedia-grid two">
-          <div class="clip vertical">
-            <video src="assets/stm32_demo.mp4" muted playsinline preload="metadata" loop></video>
-            <div class="play"><i></i></div>
-            <div class="clip-cap">STM32N6570-DK · 实时骨骼与分类</div>
-          </div>
-          <div class="clip vertical">
-            <img src="assets/stm32_5actions.jpg" alt="五类动作板端识别结果" style="object-fit:contain;background:#0b0c0e;padding:6px">
-            <div class="clip-cap">五类动作 · 板端识别结果</div>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <!-- 05 -->
-    <article class="project reveal">
-      <div class="p-top">
-        <div class="p-main">
-          <div class="p-index"><span>PROJECT 05</span><span class="badge">模仿学习</span><span class="badge mute">个人项目</span></div>
+          <div class="p-index"><span>PROJECT 02</span><span class="badge">模仿学习</span><span class="badge mute">个人项目</span></div>
           <h3 class="p-title">基于 LeRobot 的模仿学习策略：DP 与 DP3</h3>
           <p class="p-sub">视觉策略与点云策略两条路线，共用同一份数据与评测协议</p>
           <p class="p-desc">
@@ -600,6 +467,131 @@ footer a:hover{color:var(--accent)}
         <div class="pmedia-wide">
           <img src="assets/pointcloud_hero.jpg" alt="相机视角与点云重建对照">
           <div class="pmedia-wide-cap">从单目画面反投影出的彩色点云 · 已变换到机器人基座坐标系</div>
+        </div>
+      </div>
+    </article>    <!-- 03 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 03</span><span class="badge">RAG</span><span class="badge mute">个人项目</span></div>
+          <h3 class="p-title">具身智能领域离线证据检索系统</h3>
+          <p class="p-sub">BM25 + 稠密向量 + 知识图谱三路召回，RRF 融合与证据充分性门控</p>
+          <p class="p-desc">
+            面向具身智能领域的证据检索：在完全离线、不依赖真机与外部 API 的条件下，
+            对论文、机器人手册、实验记录做可溯源检索作答。核心是让「召回」和「不编造」两件事同时可测量。
+          </p>
+          <ul class="p-hl">
+            <li><b>三路召回</b>：jieba + 标准 BM25、bge-m3 稠密向量（FAISS）、LLM 抽取三元组构建的知识图谱</li>
+            <li><b>加法式路由</b>：基础两路常开，命中英文大写词或重复中文专名时再叠加图谱路，规则可单测</li>
+            <li><b>门控拒答</b>：LLM 判证据是否充分，不足直接拒答，无答案题正确拒答率 87.5%</li>
+            <li><b>评测流水线</b>：QA 合成 → LLM-judge 核验 → 分层划分，Recall / nDCG / MRR 全量可复算</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">Recall@5（微调后）</div><div class="m-value">0.668</div><div class="m-note">基线 0.206</div></div>
+          <div class="metric"><div class="m-label">nDCG@10</div><div class="m-value">0.563</div><div class="m-note">基线 0.184</div></div>
+          <div class="metric"><div class="m-label">检索 P95 延迟</div><div class="m-value">19 ms</div><div class="m-note">微调前 876 ms</div></div>
+          <div class="metric"><div class="m-label">无答案题拒答率</div><div class="m-value">87.5%</div><div class="m-note">门控前 0%</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">Python</span><span class="tag">BM25</span><span class="tag">bge-m3</span>
+        <span class="tag">FAISS</span><span class="tag">RRF</span><span class="tag">Qwen2.5 LoRA</span><span class="tag">FastAPI</span>
+        <a class="p-link" href="p1-rag.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">RESULT · 六套方案对比</div>
+        <div class="pmedia-wide">
+          <img src="assets/rag/systems.png" alt="六套检索方案指标对比">
+          <div class="pmedia-wide-cap">1117 题核验集：两路 RRF 相比 v0 把 Recall@5 从 0.206 提到 0.502</div>
+        </div>
+      </div>
+    </article>    <!-- 04 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 04</span><span class="badge gold">全国一等奖</span><span class="badge mute">源码不公开</span></div>
+          <h3 class="p-title">双臂二指解魔方机器人</h3>
+          <p class="p-sub">四摄像头六面识别 + 透视校正 + Kociemba 求解 + 时间最优双臂动作寻优</p>
+          <p class="p-desc">
+            面向魔方自动复原，需要同时解决「六面视觉感知」与「双臂机械动作解算」的协同。
+            负责上位机全链路：视觉识别、求解调度、机械动作寻优、串口通信与整机联调。
+          </p>
+          <ul class="p-hl">
+            <li><b>视觉</b>：DirectShow 四路采集，LAB 空间 Canny + 轮廓矩质心 + K-Means(K=6) 颜色聚类</li>
+            <li><b>求解</b>：Kociemba 两阶段给出 8 组解，再按同轴组合展开为可执行的机械步骤</li>
+            <li><b>寻优</b>：按实测单步耗时累加，在 8 组解 × 2 步 / 2.5 步两套搜索中取总时间最小</li>
+            <li><b>执行</b>：自定义串口协议下发，速度曲线预存 Flash，双臂一手持一手拧</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">竞赛成绩</div><div class="m-value">全国一等奖</div><div class="m-note">中国高校智能机器人创意大赛</div></div>
+          <div class="metric"><div class="m-label">上位机代码</div><div class="m-value">21.4k 行</div><div class="m-note">14 个 C# 源文件</div></div>
+          <div class="metric"><div class="m-label">机械寻优</div><div class="m-value">2 / 2.5 步</div><div class="m-note">两套搜索并行比较</div></div>
+          <div class="metric"><div class="m-label">闭环</div><div class="m-value">可连续复原</div><div class="m-note">采集→识别→求解→执行</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">C#</span><span class="tag">WinForms</span><span class="tag">OpenCvSharp</span>
+        <span class="tag">DirectShow</span><span class="tag">Kociemba</span>
+        <a class="p-link" href="p3-cube.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">DEMO · 真机复原</div>
+        <div class="pmedia-grid two">
+          <div class="clip vertical">
+            <video src="assets/cube_demo.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">双臂夹持 · 逐层转动复原</div>
+          </div>
+          <div class="clip vertical">
+            <img src="assets/cube_frame_060.jpg" alt="双臂二指夹持机构与魔方">
+            <div class="clip-cap">双臂二指夹持机构 · 魔方就位</div>
+          </div>
+        </div>
+      </div>
+    </article>    <!-- 05 -->
+    <article class="project reveal">
+      <div class="p-top">
+        <div class="p-main">
+          <div class="p-index"><span>PROJECT 05</span><span class="badge">边缘部署</span><span class="badge mute">大创</span></div>
+          <h3 class="p-title">面向银发经济的端侧动作识别与跌倒预警</h3>
+          <p class="p-sub">YOLO11n-Pose + 1D-CNN 在单颗 STM32N6 上的 NPU/CPU 级联</p>
+          <p class="p-desc">
+            居家养老跌倒预警中，穿戴设备依从性差、云端方案有隐私与带宽风险。
+            本项目把姿态估计与时序动作分类全部放在端侧，原始图像不出设备。
+          </p>
+          <ul class="p-hl">
+            <li><b>两级级联</b>：YOLO11n-Pose 提 17 个 COCO 关键点，1D-CNN 对 11 帧序列分类 6 类动作</li>
+            <li><b>体型归一</b>：以左右肩-胯距离均值为基准做分段归一化，消除个体体型与拍摄距离差异</li>
+            <li><b>压缩</b>：int8 量化 + 幅度剪枝 / 结构化通道剪枝，权重较 float 降 74.1%</li>
+            <li><b>异构</b>：姿态模型走 NPU、分类模型走 CPU，同循环内串行级联，互不阻塞</li>
+          </ul>
+        </div>
+        <aside class="p-side">
+          <div class="metric"><div class="m-label">板端识别准确率</div><div class="m-value">90.4%</div><div class="m-note">论文报告</div></div>
+          <div class="metric"><div class="m-label">推理时间 / 帧率</div><div class="m-value">36 ms</div><div class="m-note">16 FPS</div></div>
+          <div class="metric"><div class="m-label">部署模型</div><div class="m-value">1×11×34</div><div class="m-note">int8 → 6 类</div></div>
+          <div class="metric"><div class="m-label">MACC / 权重</div><div class="m-value">69.7k</div><div class="m-note">12,184 B</div></div>
+        </aside>
+      </div>
+      <div class="p-foot">
+        <span class="tag">Python</span><span class="tag">YOLO11n-Pose</span><span class="tag">1D-CNN</span>
+        <span class="tag">TFLite</span><span class="tag">STM32N6</span><span class="tag">STEdge AI</span>
+        <a class="p-link" href="p4-edge.html">查看详情 →</a>
+      </div>
+      <div class="pmedia">
+        <div class="pmedia-label">DEMO · 板端实机运行</div>
+        <div class="pmedia-grid two">
+          <div class="clip vertical">
+            <video src="assets/stm32_demo.mp4" muted playsinline preload="metadata" loop></video>
+            <div class="play"><i></i></div>
+            <div class="clip-cap">STM32N6570-DK · 实时骨骼与分类</div>
+          </div>
+          <div class="clip vertical">
+            <img src="assets/stm32_5actions.jpg" alt="五类动作板端识别结果" style="object-fit:contain;background:#0b0c0e;padding:6px">
+            <div class="clip-cap">五类动作 · 板端识别结果</div>
+          </div>
         </div>
       </div>
     </article>
