@@ -379,7 +379,7 @@ footer a:hover{color:var(--accent)}
         <div class="p-main">
           <div class="p-index"><span>PROJECT 01</span><span class="badge">具身智能</span><span class="badge mute">科研项目</span></div>
           <h3 class="p-title">长程任务示范数据拼接</h3>
-          <p class="p-sub">语义锚点双侧裁剪 + 段内遮中过渡生成 + 五级观测门控</p>
+          <p class="p-sub">语义锚点双侧裁剪 + 段内遮中过渡生成 + 五级观测门控 + π0.5 多卡 LoRA 微调</p>
           <p class="p-desc">
             长程操作任务的完整人工示范采集成本高，本项目用两条短程技能示范自动拼出可用的长程训练数据。
             难点不在「接起来」，而在接缝处的动作连续性与观测缺口。
@@ -389,6 +389,7 @@ footer a:hover{color:var(--accent)}
             <li><b>过渡生成</b>：段内遮中（in-betweening）训练 1D U-Net，FiLM 调制 + cross-attention 双向条件</li>
             <li><b>观测补齐</b>：SE(3) 半径内检索真实帧 → 运动感知生成 → 模糊兜底，逐帧三级降级</li>
             <li><b>门组预注册</b>：接缝速度/加速度/终点/时长全部先定阈值后看结果，测量缺失即 fail-closed</li>
+            <li><b>多卡微调</b>：基于 OpenPI 以 4 卡 FSDP 分片训练对 π0.5 做 LoRA 微调（VLM 主干与动作专家双适配）</li>
           </ul>
         </div>
         <aside class="p-side">
@@ -399,8 +400,8 @@ footer a:hover{color:var(--accent)}
         </aside>
       </div>
       <div class="p-foot">
-        <span class="tag">Python</span><span class="tag">PyTorch</span><span class="tag">LeRobot</span>
-        <span class="tag">ALOHA</span><span class="tag">RoboTwin</span><span class="tag">Grounding DINO</span>
+        <span class="tag">Python</span><span class="tag">PyTorch</span><span class="tag">OpenPI / JAX</span>
+        <span class="tag">π0.5 LoRA</span><span class="tag">ALOHA</span><span class="tag">RoboTwin</span>
         <a class="p-link" href="p2-stitch.html">查看详情 →</a>
       </div>
       <div class="pmedia">
